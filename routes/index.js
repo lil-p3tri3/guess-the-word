@@ -10,16 +10,16 @@ router.post('/play-game', (req, res) => {
   const twiml = new MessagingResponse();
 
   // 💡 How can we clean this data?
-  const incomingMsg = req.body.Body;
+  const incomingMsg = req.body.Body.toLowerCase().trim;
 
-  /* BEGIN OF INTRO SECTION
+/*   BEGIN OF INTRO SECTION
   👋 Hi! Read me first! 👋 */
 
   // Prints out the text sent to the Twilio SMS number
-  console.log(incomingMsg);
+  // console.log(incomingMsg);
 
   // Sends back a message
-  twiml.message("Wow, I sure do love Major League Hacking. Excited for today's INIT challenge!");
+  // twiml.message("Wow, I sure do love Major League Hacking. Excited for today's INIT challenge!");
 
   // Using the instructions in the README.md, run the app and send your Twilio SMS number a text
   // Check out the link on your ngrok tab in terminal, most likely http://localhost:4040
@@ -27,7 +27,7 @@ router.post('/play-game', (req, res) => {
 
   /* 👋 See you later, alligator! 🐊
   (Send in chat "in a while, crocodile" if you're cool)
-  END OF INTRO SECTION */
+  END OF INTRO SECTION*/
 
   // 💡 Add a secret word to test this game with!
   const word = '';
