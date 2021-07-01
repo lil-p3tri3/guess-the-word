@@ -30,7 +30,7 @@ router.post('/play-game', (req, res) => {
   END OF INTRO SECTION*/
 
   // 💡 Add a secret word to test this game with!
-  const word = '';
+  const word = 'dsc';
 
   // ✨ Helper functions ✨
     
@@ -43,23 +43,51 @@ router.post('/play-game', (req, res) => {
   }
 
   const handleInvalidSMS = () => {
-    // 💡 Send an error message
+    // 💡 Send an error message (ex. typing something other than "start")
+    twiml.message('Sorry, please type "start" to play.');
   }
 
   const checkForSuccess = () => {
     // 💡 Check to see if player guessed the full word or a letter in it
+    if (incomingMsg == word) { 
+      return 'win'; 
+    }
+    if (word.includes(incomingMsg)) {
+      return 'match'; 
+    }
+    return false;
   }
 
   const handleGameOver = msg => {
     // 💡 Notify the player that the game is over
+    twiml.message(msg);
+    // destroy session
+    req.session.destroy();
   }
 
   const handleBadGuess = () => {
     // 💡 Let the player know if their guess was incorrect
+    req.session.lives--;
+    if (req.session.lives ==0) {
+      handleGameOver("Sorry mate, start again!");
+    } else {
+      twiml.message("not quite <3");
+    }
   }
 
   const handleMatch = () => {
     // 💡 Update hint with correct guesses
+    for (let [i, char] of [...word].entries()) {
+      if (char == incomingMsg){
+        req.session.wordState[i] = incomingMsg;
+      }
+    }
+
+    if (req.session.wordState.join('') == word){
+      handleGameOver("🎊Awesome job! You win!🎊")
+    } else {
+      twiml.message(`You got a letter! \n\n ${req.session.wordState.join(' ')}`);
+    }
   }
 
   // 🎮 Game Play Logic 🎮
@@ -67,12 +95,21 @@ router.post('/play-game', (req, res) => {
   if (!req.session.playing) {
     // 💡 Set up game logic with the helper functions
     if (incomingMsg == 'start') {
-      // ❓ If you're not playing someone texts you start, what helper function do you call?
+      // ❓ If you're not playing and someone texts you start, what helper function do you call?
+        handleNewGame();
     } else {
-
+        handleInvalidSMS();
     }
   } else {
     // 💡 Logic once you've started playing the game!
+      const success = checkForSuccess(); //results will be "false", "win", or "match"
+      if (success = "match") {
+        handleMatch();
+      } else if (success = "win") {
+        handleGameOver("You win!");
+      } else {
+        handleBadGuess();
+      }
   }
 
   // sends the response back to the user
