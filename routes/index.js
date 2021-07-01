@@ -10,7 +10,8 @@ router.post('/play-game', (req, res) => {
   const twiml = new MessagingResponse();
 
   // 💡 How can we clean this data?
-  const incomingMsg = req.body.Body.toLowerCase().trim;
+  const incomingMsg = req.body.Body.toLowerCase().trim();
+  console.log(incomingMsg);
 
 /*   BEGIN OF INTRO SECTION
   👋 Hi! Read me first! 👋 */
@@ -39,12 +40,12 @@ router.post('/play-game', (req, res) => {
     req.session.wordState = new Array(word.length).fill('_');
     req.session.lives = 5;
     req.session.playing = true;
-    twiml.message(`Text back one letter at a time to try and figure out the word. If you know the word, text the entire word!\n\nYou have ${req.session.lives} lives left. \n\n ${req.session.wordState.join(' ')}`);
+    twiml.message(`\n\nText back one letter at a time to try and figure out the word. If you know the word, text the entire word!\n\nYou have ${req.session.lives} lives left. \n\n ${req.session.wordState.join(' ')}`);
   }
 
   const handleInvalidSMS = () => {
     // 💡 Send an error message (ex. typing something other than "start")
-    twiml.message('Sorry, please type "start" to play.');
+    twiml.message('\n\nSorry, please type "start" to play.');
   }
 
   const checkForSuccess = () => {
@@ -69,9 +70,9 @@ router.post('/play-game', (req, res) => {
     // 💡 Let the player know if their guess was incorrect
     req.session.lives--;
     if (req.session.lives ==0) {
-      handleGameOver("Sorry mate, start again!");
+      handleGameOver("\n\nSorry mate, \nyou ran out of lives \nstart again!");
     } else {
-      twiml.message("not quite <3");
+      twiml.message(`\n\nNot quite 💜\n\nYou have ${req.session.lives} lives left. \n\n ${req.session.wordState.join(' ')}`);
     }
   }
 
@@ -84,9 +85,9 @@ router.post('/play-game', (req, res) => {
     }
 
     if (req.session.wordState.join('') == word){
-      handleGameOver("🎊Awesome job! You win!🎊")
+      handleGameOver(`\n\n🎊Awesome job! You win!🎊\n\n ${req.session.wordState.join(' ')}`);
     } else {
-      twiml.message(`You got a letter! \n\n ${req.session.wordState.join(' ')}`);
+      twiml.message(`\n\nYou got a letter! \n\nYou have ${req.session.lives} lives left. \n\n ${req.session.wordState.join(' ')}`);
     }
   }
 
@@ -103,10 +104,10 @@ router.post('/play-game', (req, res) => {
   } else {
     // 💡 Logic once you've started playing the game!
       const success = checkForSuccess(); //results will be "false", "win", or "match"
-      if (success = "match") {
+      if (success == "match") {
         handleMatch();
-      } else if (success = "win") {
-        handleGameOver("You win!");
+      } else if (success == "win") {
+        handleGameOver(`\n\n🎊Awesome job! You win!🎊\n\n ${req.session.wordState.join(' ')}`);
       } else {
         handleBadGuess();
       }
